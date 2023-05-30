@@ -5,11 +5,6 @@ import matplotlib.pyplot as plt
 # url = "https://data.bls.gov/timeseries/APU0000708111" 
 # response = requests.get(url)
 
-# soup = bs4.BeautifulSoup(response.text)
-# pretty_html_string = soup.prettify()
-# print(pretty_html_string)
-# with open("Eggweb.html", "w") as f:
-#     f.write(pretty_html_string)
 
 with open("Eggweb.html", "r") as f:
     pretty_html_string = f.read()
@@ -20,8 +15,18 @@ with open("Eggweb.html", "r") as f:
 
 
 df = pd.read_html("Eggweb.html") [1]
+df = pd.melt(
+    df,
+    id_vars="Year",
+    value_vars=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    var_name= "Month",
+    value_name="Cost",
+    ignore_index= True
+)
+df["Date"] = df["Year"].astype("str") + "-" + df["Month"] + "-1"
+df['Date'] = pd.to_datetime(df["Date"], format = "%Y-%b-%d")
 print(df)
+# df['Date'] = pd.to_datetime(df[['Year','Month']].assign(Day = 1))
 print(df.info ())
-df.plot( x = "Year", y = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
-# df.plot (x = "Major", y = "Median")
+df.plot( x = "Date", y = "Cost")
 plt.show()
